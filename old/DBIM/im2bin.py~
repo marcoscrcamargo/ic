@@ -1,0 +1,42 @@
+from PIL import Image
+import numpy as np
+import os 
+
+#im=list()
+w = 1280 
+h = 960
+tp = w*h
+size = tp*3+1
+print(size)
+
+#out = np.array(0+0+0+0)
+
+for dirpath, dnames, fnames in os.walk("./"):
+    for f in fnames:
+        if f.endswith(".jpg"):
+            #print("Dir:", d in dnames, "File: ",f )
+            print "File '%s' in path '%s' " % (f,dirpath)
+            #print "Current path: %s" % dirpath 
+            im = Image.open(dirpath+"/"+f)
+            im = (np.array(im))
+
+            r = im[:,:,0].flatten()
+            g = im[:,:,1].flatten()
+            b = im[:,:,2].flatten()
+            foo = int(dirpath[len(dirpath)-1])
+            print "Label: %d" % foo
+            label = [foo]
+            
+            aux = np.array(list(label) + list(r) + list(g) + list(b),np.uint8)
+            
+            try:
+                out
+            except:
+                out = aux
+            else:
+                out = np.concatenate((out,aux)) 
+           
+            print "Size[out]: %.2lf" % (len(out)/1000)
+            print #(out)
+            
+out.tofile("out2.bin")
