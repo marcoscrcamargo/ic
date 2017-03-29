@@ -69,7 +69,7 @@ tf.app.flags.DEFINE_boolean('run_once', False,
 # os.system('clear')
 
 mypath = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-path = './inputs/horse4.png'
+path = './inputs/airplane2.png'
 
 
 
@@ -82,7 +82,7 @@ tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
 # mudei mypath + para /tmp/
 
-tf.app.flags.DEFINE_string('checkpoint_dir', '/tmp/cifar10_train',
+tf.app.flags.DEFINE_string('checkpoint_dir', './cifar10_train',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('eval_interval_secs', 1,
                             """How often to run the eval.""")
@@ -102,8 +102,8 @@ def img2bin():
   label = [1]
 
   out = np.array(list(label) + list(r) + list(g) + list(b),np.uint8)
-  out.tofile("./input.bin")
-
+  out.tofile("./input.bin") 
+  # os.path.join(data_dir, 'input.bin')
 
 def eval_once(saver, summary_writer, top_k_op, summary_op, logits):
   """Run Eval once.

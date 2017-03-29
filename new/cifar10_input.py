@@ -35,6 +35,12 @@ NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
 
 
+# Variavel que seleciona se sera realizada a classificacaoo de uma imagem, ou a funcao eval.
+__EVAL = False
+# __EVAL = True
+
+
+
 def read_cifar10(filename_queue):
   """Reads and parses examples from CIFAR10 data files.
   Recommendation: if you want N-way read parallelism, call this function
@@ -204,12 +210,18 @@ def inputs(eval_data, data_dir, batch_size):
     labels: Labels. 1D tensor of [batch_size] size.
   """
   if not eval_data:
+    # filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
+    #              for i in xrange(1, 6)]
     filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
                  for i in xrange(1, 6)]
     num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
   else:
-    # filenames = [os.path.join(data_dir, 'input.bin')]
-    filenames = [os.path.join('./', 'input.bin')]
+    if (__EVAL == True):
+      filenames = [os.path.join(data_dir, 'test_batch.bin')]
+    else:
+      filenames = [os.path.join('./', 'input.bin')]
+      # filenames = [os.path.join(data_dir, 'input.bin')]
+    
     print()
     print("Path of evaluation:", filenames)
     print()
