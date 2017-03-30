@@ -30,7 +30,8 @@ import tensorflow as tf
 IMAGE_SIZE = 24
 
 # Global constants describing the CIFAR-10 data set.
-NUM_CLASSES = 10
+# NUM_CLASSES = 10
+NUM_CLASSES = 3
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
 
@@ -68,8 +69,10 @@ def read_cifar10(filename_queue):
   # See http://www.cs.toronto.edu/~kriz/cifar.html for a description of the
   # input format.
   label_bytes = 1  # 2 for CIFAR-100
-  result.height = 32
-  result.width = 32
+  result.height = 84 
+  result.width = 84
+  # result.height = 32
+  # result.width = 32
   result.depth = 3
   image_bytes = result.height * result.width * result.depth
   # Every record consists of a label followed by the image, with a
@@ -147,7 +150,9 @@ def distorted_inputs(data_dir, batch_size):
     images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
     labels: Labels. 1D tensor of [batch_size] size.
   """
-  filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
+  # filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
+  #              for i in xrange(1, 6)]
+  filenames = [os.path.join(data_dir, 'trainset_%d.bin' % i)
                for i in xrange(1, 6)]
   for f in filenames:
     if not tf.gfile.Exists(f):
@@ -212,12 +217,13 @@ def inputs(eval_data, data_dir, batch_size):
   if not eval_data:
     # filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
     #              for i in xrange(1, 6)]
-    filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
+    filenames = [os.path.join(data_dir, 'trainset_%d.bin' % i)
                  for i in xrange(1, 6)]
     num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
   else:
     if (__EVAL == True):
-      filenames = [os.path.join(data_dir, 'test_batch.bin')]
+      # filenames = [os.path.join(data_dir, 'test_batch.bin')]
+      filenames = [os.path.join(data_dir, 'testset.bin')]
     else:
       filenames = [os.path.join('./', 'input.bin')]
       # filenames = [os.path.join(data_dir, 'input.bin')]

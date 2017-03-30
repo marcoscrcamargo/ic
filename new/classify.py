@@ -53,7 +53,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('eval_dir', '/tmp/cifar10_eval',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
-                           """Either 'test' or 'train_eval'.""")
+                           """Either 'test' or 'train_eval'.""")/
 tf.app.flags.DEFINE_string('checkpoint_dir', '/tmp/cifar10_train',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5,
@@ -69,14 +69,14 @@ tf.app.flags.DEFINE_boolean('run_once', False,
 # os.system('clear')
 
 mypath = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-path = './inputs/airplane2.png'
+path = './inputs/2.png'
 
 
 
 print("Working in my path:", mypath)
 print("Eval:", path)
 
-tf.app.flags.DEFINE_string('eval_dir', mypath + '/cifar10_eval',
+tf.app.flags.DEFINE_string('eval_dir', './cifar10_eval',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
@@ -145,7 +145,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op, logits):
       
       print(sess.run(logits[0]))
       classification = sess.run(tf.argmax(logits[0], 0))
-      cifar10classes = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
+      cifar10classes = ["Objeto 0", "Objeto 1", "Objeto 2", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
       print(cifar10classes[classification])
 
       step += 1
