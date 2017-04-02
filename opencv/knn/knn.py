@@ -104,6 +104,7 @@ img_path = args["classify"]
 if(img_path != ""):
 	
 	img = cv2.imread(img_path)
+	img = cv2.resize(img, (32, 32)) 
 	pxl = image_to_feature_vector(np.array(img))
 	# Removendo o warining
 	pxl = pxl.reshape(1,-1)
@@ -120,8 +121,6 @@ if(img_path != ""):
 	model = KNeighborsClassifier(n_neighbors=args["neighbors"],
 		n_jobs=args["jobs"])
 	model.fit(trainFeat, trainLabels)
-	acc = model.score(testFeat, testLabels)
-	print("[INFO] histogram accuracy: {:.2f}%".format(acc * 100))
 
 	print("(histogram) image label:" + model.predict(hst)[0])
 
