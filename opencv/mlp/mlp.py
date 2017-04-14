@@ -91,27 +91,24 @@ print("[INFO] pixels matrix: {:.2f}MB".format(
 print("[INFO] features matrix: {:.2f}MB".format(
 	features.nbytes / (1024 * 1000.0)))
 
-# partition the data into training and testing splits, using 75%
-# of the data for training and the remaining 25% for testing
-(trainRI, testRI, trainRL, testRL) = train_test_split(
-	rawImages, labels, test_size=0.25, random_state=42)
-(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(
-	features, labels, test_size=0.25, random_state=42)
-
 
 
 img_path = args["classify"]
 if(img_path != ""):
+	# partition the data into training and testing splits, using 75%
+	# of the data for training and the remaining 25% for testing
+	(trainRI, testRI, trainRL, testRL) = train_test_split(
+		rawImages, labels, test_size=0, random_state=42)
+	(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(
+		features, labels, test_size=0, random_state=42)
+
 	
 	img = cv2.imread(img_path)
-	pxl = image_to_feature_vector(np.array(img))
-	# Removendo o warining
-	pxl = pxl.reshape(1,-1)
-	# nao sei remover aqui
-	hst = extract_color_histogram(np.array(img))
+	pxl = image_to_feature_vector(np.array(img)).reshape(1,-1)
+	hst = extract_color_histogram(np.array(img)).reshape(1,-1)
 
 
-	model = MLPClassifier(hidden_layer_sizes=(10),
+	model = MLPClassifier(hidden_layer_sizes=(100,100,100),
 			solver='sgd',learning_rate_init=0.01, 
 			max_iter=500)
 
@@ -119,7 +116,7 @@ if(img_path != ""):
 	
 	print("(pixels) image label:" + model.predict(pxl)[0])
 
-	model = MLPClassifier(hidden_layer_sizes=(10),
+	model = MLPClassifier(hidden_layer_sizes=(100,100,100),
 			solver='sgd',learning_rate_init=0.01, 
 			max_iter=500)
 
@@ -128,10 +125,19 @@ if(img_path != ""):
 	print("(histogram) image label:" + model.predict(hst)[0])
 
 else:
+	# partition the data into training and testing splits, using 75%
+	# of the data for training and the remaining 25% for testing
+	(trainRI, testRI, trainRL, testRL) = train_test_split(
+		rawImages, labels, test_size=0.25, random_state=42)
+	(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(
+		features, labels, test_size=0.25, random_state=42)
+
+
+
 	# train and evaluate a k-NN classifer on the raw pixel intensities
 	print("[INFO] evaluating raw pixel accuracy...")
-	model = MLPClassifier(hidden_layer_sizes=(10),
-			solver='sgd',learning_rate_init=0.01, 
+	model = MLPClassifier(hidden_layer_sizes=(100,100,100),
+			solver='lbfgs',learning_rate_init=0.01, 
 			max_iter=500)
 
 	model.fit(trainRI, trainRL)
@@ -143,7 +149,7 @@ else:
 	# train and evaluate a k-NN classifer on the histogram
 	# representations
 	print("[INFO] evaluating histogram accuracy...")
-	model = MLPClassifier(hidden_layer_sizes=(10,10,10),
+	model = MLPClassifier(hidden_layer_sizes=(100,100,100),
 			solver='sgd',learning_rate_init=0.01, 
 			max_iter=500)
 	model.fit(trainFeat, trainLabels)

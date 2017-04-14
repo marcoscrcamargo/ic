@@ -104,12 +104,8 @@ img_path = args["classify"]
 if(img_path != ""):
 	
 	img = cv2.imread(img_path)
-	img = cv2.resize(img, (32, 32)) 
-	pxl = image_to_feature_vector(np.array(img))
-	# Removendo o warining
-	pxl = pxl.reshape(1,-1)
-	# nao sei remover aqui
-	hst = extract_color_histogram(np.array(img))
+	pxl = image_to_feature_vector(np.array(img)).reshape(1,-1)
+	hst = extract_color_histogram(np.array(img)).reshape(1,-1)
 
 
 	model = KNeighborsClassifier(n_neighbors=args["neighbors"],
