@@ -1,6 +1,6 @@
 img = 
 db = DBIM/alldb
-classifier = knn
+classifier = svm
 
 mlp:
 	python mlp.py --dataset $(db)

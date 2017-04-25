@@ -35,6 +35,17 @@ def extract_color_histogram(image, bins=(8, 8, 8)):
 	# return the flattened histogram as the feature vector
 	return hist.flatten()
 
+def print_predict_proba(type, model, input):
+	print("\n"+type)
+	prob = model.predict_proba(input)
+	print("Probability:")
+	print("label 0: " + str(prob[0][0]))
+	print("label 1: " + str(prob[0][1]))
+	print("label 2: " + str(prob[0][2]))
+
+	print("image label:" + model.predict(input)[0])
+	print("")
+
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dataset", required=True,
@@ -63,7 +74,7 @@ for (i, imagePath) in enumerate(imagePaths):
 	# load the image and extract the class label (assuming that our
 	# path as the format: /path/to/dataset/{class}/{image_num}.jpg
 	image = cv2.imread(imagePath)
-	label = imagePath.split(os.path.sep)[1]
+	label = imagePath.split(os.path.sep)[2]
  	
 	# extract raw pixel intensity "features", followed by a color
 	# histogram to characterize the color distribution of the pixels
@@ -114,7 +125,9 @@ if(img_path != ""):
 
 	model.fit(trainRI, trainRL)
 	
-	print("(pixels) image label:" + model.predict(pxl)[0])
+	print_predict_proba("PIXELS", model, pxl)
+	# print("(pixels) image label:" + model.predict(pxl)[0])
+	# print(model.predict_proba(pxl));
 
 	model = MLPClassifier(hidden_layer_sizes=(100,100,100),
 			solver='sgd',learning_rate_init=0.01, 
@@ -122,7 +135,9 @@ if(img_path != ""):
 
 	model.fit(trainFeat, trainLabels)
 
-	print("(histogram) image label:" + model.predict(hst)[0])
+	print_predict_proba("HISTOGRAM", model, hst)
+	# print("(histogram) image label:" + model.predict(hst)[0])
+	# print(model.predict_proba(hst));
 
 else:
 	# partition the data into training and testing splits, using 75%
@@ -134,7 +149,7 @@ else:
 
 
 
-	# train and evaluate a k-NN classifer on the raw pixel intensities
+	# train and evaluate a mlp classifer on the raw pixel intensities
 	print("[INFO] evaluating raw pixel accuracy...")
 	model = MLPClassifier(hidden_layer_sizes=(100,100,100),
 			solver='lbfgs',learning_rate_init=0.01, 
@@ -146,7 +161,7 @@ else:
 
 
 
-	# train and evaluate a k-NN classifer on the histogram
+	# train and evaluate a mlp classifer on the histogram
 	# representations
 	print("[INFO] evaluating histogram accuracy...")
 	model = MLPClassifier(hidden_layer_sizes=(100,100,100),
