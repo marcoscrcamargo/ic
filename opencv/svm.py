@@ -1,5 +1,7 @@
 # import the necessary packages
 from sklearn import svm
+from sklearn.calibration import CalibratedClassifierCV
+
 # from sklearn.cross_validation import train_test_split
 # resolvendo problemas de compatibilidade
 from sklearn.model_selection import train_test_split
@@ -34,6 +36,17 @@ def extract_color_histogram(image, bins=(8, 8, 8)):
  
 	# return the flattened histogram as the feature vector
 	return hist.flatten()
+
+def print_predict_proba(type, model, input):
+	print("\n"+type)
+	prob = model.predict_proba(input)
+	print("Probability:")
+	print("label 0: " + str(prob[0][0]))
+	print("label 1: " + str(prob[0][1]))
+	print("label 2: " + str(prob[0][2]))
+
+	print("image label:" + model.predict(input)[0])
+	print("")
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -91,37 +104,42 @@ print("[INFO] pixels matrix: {:.2f}MB".format(
 print("[INFO] features matrix: {:.2f}MB".format(
 	features.nbytes / (1024 * 1000.0)))
 
-# partition the data into training and testing splits, using 75%
-# of the data for training and the remaining 25% for testing
-(trainRI, testRI, trainRL, testRL) = train_test_split(
-	rawImages, labels, test_size=0.25, random_state=42)
-(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(
-	features, labels, test_size=0.25, random_state=42)
-
-
 
 img_path = args["classify"]
 if(img_path != ""):
-	
+	(trainRI, testRI, trainRL, testRL) = train_test_split(
+		rawImages, labels, test_size=0, random_state=42)
+	(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(
+		features, labels, test_size=0, random_state=42)
+
 	img = cv2.imread(img_path)
 	pxl = image_to_feature_vector(np.array(img)).reshape(1,-1)
 	hst = extract_color_histogram(np.array(img)).reshape(1,-1)
 
 
-	model = svm.LinearSVC()
+	model = CalibratedClassifierCV(svm.LinearSVC())
 	model.fit(trainRI, trainRL)
 	
-	print("(pixels) image label:" + model.predict(pxl)[0])
-	print(model.decision_function(pxl))
+	print_predict_proba("PIXELS", model, pxl)
+	# print("(pixels) image label:" + model.predict(pxl)[0])
+	# print(model.decision_function(pxl))
 
-	model = svm.LinearSVC()
+	# model = svm.LinearSVC()
+	model = CalibratedClassifierCV(svm.LinearSVC())
 	model.fit(trainFeat, trainLabels)
 
-	print("(histogram) image label:" + model.predict(hst)[0])
-
-	print(model.decision_function(hst))
+	print_predict_proba("HISTOGRAM", model, hst)
+	# print("(histogram) image label:" + model.predict(hst)[0])
+	# print(model.decision_function(hst))
 
 else:
+	# partition the data into training and testing splits, using 75%
+	# of the data for training and the remaining 25% for testing
+	(trainRI, testRI, trainRL, testRL) = train_test_split(
+		rawImages, labels, test_size=0.25, random_state=42)
+	(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(
+		features, labels, test_size=0.25, random_state=42)
+
 	# train and evaluate a k-NN classifer on the raw pixel intensities
 	print("[INFO] evaluating raw pixel accuracy...")
 	model = svm.LinearSVC()

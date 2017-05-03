@@ -106,8 +106,6 @@ print("[INFO] features matrix: {:.2f}MB".format(
 
 img_path = args["classify"]
 if(img_path != ""):
-	# partition the data into training and testing splits, using 75%
-	# of the data for training and the remaining 25% for testing
 	(trainRI, testRI, trainRL, testRL) = train_test_split(
 		rawImages, labels, test_size=0, random_state=42)
 	(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(
