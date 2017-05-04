@@ -11,6 +11,10 @@ import imutils
 import cv2
 import os
 
+data_path = "DBIM/alldb"
+
+
+
 def image_to_feature_vector(image, size=(32, 32)):
 	# resize the image to a fixed size, then flatten the image into
 	# a list of raw pixel intensities
@@ -46,66 +50,52 @@ def print_predict_proba(type, model, input):
 	print("image label:" + model.predict(input)[0])
 	print("")
 
-# construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--dataset", required=True,
-	help="path to input dataset")
-ap.add_argument("-k", "--neighbors", type=int, default=5,
-	help="# of nearest neighbors for classification")
-ap.add_argument("-j", "--jobs", type=int, default=-1,
-	help="# of jobs for k-NN distance (-1 uses all available cores)")
-ap.add_argument("-c", "--classify", default="",
-	help="path to input image")
+def classify(img_path, imshow=False, info=False):
+	# grab the list of images that we'll be describing
+	if(info):
+		print("[INFO] describing images...")
+	imagePaths = list(paths.list_images(data_path))
+	 
+	# initialize the raw pixel intensities matrix, the features matrix,
+	# and labels list
+	rawImages = []
+	features = []
+	labels = []
 
-args = vars(ap.parse_args())
+	# loop over the input images
+	for (i, imagePath) in enumerate(imagePaths):
+		# load the image and extract the class label (assuming that our
+		# path as the format: /path/to/dataset/{class}/{image_num}.jpg
+		image = cv2.imread(imagePath)
+		label = imagePath.split(os.path.sep)[2]
+	 	
+		# extract raw pixel intensity "features", followed by a color
+		# histogram to characterize the color distribution of the pixels
+		# in the image
+		pixels = image_to_feature_vector(image)
+		hist = extract_color_histogram(image)
+	 
+		# update the raw images, features, and labels matricies,
+		# respectively
+		rawImages.append(pixels)
+		features.append(hist)
+		labels.append(label)
+	 
+		# show an update every 1,000 images
+		if i > 0 and i % 1000 == 0 and info:
+			print("[INFO] processed {}/{}".format(i, len(imagePaths)))
 
-# grab the list of images that we'll be describing
-print("[INFO] describing images...")
-imagePaths = list(paths.list_images(args["dataset"]))
- 
-# initialize the raw pixel intensities matrix, the features matrix,
-# and labels list
-rawImages = []
-features = []
-labels = []
+	# show some information on the memory consumed by the raw images
+	# matrix and features matrix
+	rawImages = np.array(rawImages)
+	features = np.array(features)
+	labels = np.array(labels)
+	if(info):
+		print("[INFO] pixels matrix: {:.2f}MB".format(
+			rawImages.nbytes / (1024 * 1000.0)))
+		print("[INFO] features matrix: {:.2f}MB".format(
+			features.nbytes / (1024 * 1000.0)))
 
-# loop over the input images
-for (i, imagePath) in enumerate(imagePaths):
-	# load the image and extract the class label (assuming that our
-	# path as the format: /path/to/dataset/{class}/{image_num}.jpg
-	image = cv2.imread(imagePath)
-	label = imagePath.split(os.path.sep)[2]
- 	
-	# extract raw pixel intensity "features", followed by a color
-	# histogram to characterize the color distribution of the pixels
-	# in the image
-	pixels = image_to_feature_vector(image)
-	hist = extract_color_histogram(image)
- 
-	# update the raw images, features, and labels matricies,
-	# respectively
-	rawImages.append(pixels)
-	features.append(hist)
-	labels.append(label)
- 
-	# show an update every 1,000 images
-	if i > 0 and i % 1000 == 0:
-		print("[INFO] processed {}/{}".format(i, len(imagePaths)))
-
-# show some information on the memory consumed by the raw images
-# matrix and features matrix
-rawImages = np.array(rawImages)
-features = np.array(features)
-labels = np.array(labels)
-print("[INFO] pixels matrix: {:.2f}MB".format(
-	rawImages.nbytes / (1024 * 1000.0)))
-print("[INFO] features matrix: {:.2f}MB".format(
-	features.nbytes / (1024 * 1000.0)))
-
-
-
-img_path = args["classify"]
-if(img_path != ""):
 	(trainRI, testRI, trainRL, testRL) = train_test_split(
 		rawImages, labels, test_size=0, random_state=42)
 	(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(
@@ -113,10 +103,10 @@ if(img_path != ""):
 
 	
 	img = cv2.imread(img_path)
-	
-	cv2.imshow('image',img)
-	cv2.waitKey(0)
-	cv2.destroyAllWindows()
+	if(imshow):	
+		cv2.imshow('image',img)
+		cv2.waitKey(0)
+		cv2.destroyAllWindows()
 	
 	pxl = image_to_feature_vector(np.array(img)).reshape(1,-1)
 	hst = extract_color_histogram(np.array(img)).reshape(1,-1)
@@ -129,8 +119,6 @@ if(img_path != ""):
 	model.fit(trainRI, trainRL)
 	
 	print_predict_proba("PIXELS", model, pxl)
-	# print("(pixels) image label:" + model.predict(pxl)[0])
-	# print(model.predict_proba(pxl));
 
 	model = MLPClassifier(hidden_layer_sizes=(100,100,100),
 			solver='sgd',learning_rate_init=0.01, 
@@ -139,38 +127,3 @@ if(img_path != ""):
 	model.fit(trainFeat, trainLabels)
 
 	print_predict_proba("HISTOGRAM", model, hst)
-	# print("(histogram) image label:" + model.predict(hst)[0])
-	# print(model.predict_proba(hst));
-
-else:
-	# partition the data into training and testing splits, using 75%
-	# of the data for training and the remaining 25% for testing
-	(trainRI, testRI, trainRL, testRL) = train_test_split(
-		rawImages, labels, test_size=0.25, random_state=42)
-	(trainFeat, testFeat, trainLabels, testLabels) = train_test_split(
-		features, labels, test_size=0.25, random_state=42)
-
-
-
-	# train and evaluate a mlp classifer on the raw pixel intensities
-	print("[INFO] evaluating raw pixel accuracy...")
-	model = MLPClassifier(hidden_layer_sizes=(100,100,100),
-			solver='lbfgs',learning_rate_init=0.01, 
-			max_iter=500)
-
-	model.fit(trainRI, trainRL)
-	acc = model.score(testRI, testRL)
-	print("[INFO] raw pixel accuracy: {:.2f}%".format(acc * 100))
-
-
-
-	# train and evaluate a mlp classifer on the histogram
-	# representations
-	print("[INFO] evaluating histogram accuracy...")
-	model = MLPClassifier(hidden_layer_sizes=(100,100,100),
-			solver='sgd',learning_rate_init=0.01, 
-			max_iter=500)
-	model.fit(trainFeat, trainLabels)
-	acc = model.score(testFeat, testLabels)
-	print("[INFO] histogram accuracy: {:.2f}%".format(acc * 100))
-
