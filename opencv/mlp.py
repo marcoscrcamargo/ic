@@ -113,6 +113,11 @@ if(img_path != ""):
 
 	
 	img = cv2.imread(img_path)
+	
+	cv2.imshow('image',img)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
+	
 	pxl = image_to_feature_vector(np.array(img)).reshape(1,-1)
 	hst = extract_color_histogram(np.array(img)).reshape(1,-1)
 

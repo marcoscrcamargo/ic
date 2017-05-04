@@ -1,6 +1,6 @@
 img = 
 db = DBIM/alldb
-classifier = svm
+classifier = mlp
 
 mlp:
 	python mlp.py --dataset $(db)
