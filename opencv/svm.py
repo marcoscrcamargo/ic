@@ -39,16 +39,20 @@ def extract_color_histogram(image, bins=(8, 8, 8)):
 	# return the flattened histogram as the feature vector
 	return hist.flatten()
 
-def print_predict_proba(type, model, input):
-	print("\n"+type)
+def print_predict_proba(type, model, input, info=False):
 	prob = model.predict_proba(input)
-	print("Probability:")
-	print("label 0: " + str(prob[0][0]))
-	print("label 1: " + str(prob[0][1]))
-	print("label 2: " + str(prob[0][2]))
+	label = model.predict(input)[0]
+	if(info):
+		print("\n"+type)
+		print("Probability:")
+		print("label 0: " + str(prob[0][0]))
+		print("label 1: " + str(prob[0][1]))
+		print("label 2: " + str(prob[0][2]))
 
-	print("image label:" + model.predict(input)[0])
-	print("")
+		print("image label:" + label)
+		print("")
+
+	return {'label':label, '0':prob[0][0] ,'1':prob[0][1], '2': prob[0][2] }
 
 def classify(img_path, imshow=False, info=False):
 	# grab the list of images that we'll be describing
@@ -116,10 +120,12 @@ def classify(img_path, imshow=False, info=False):
 	model = CalibratedClassifierCV(svm.LinearSVC())
 	model.fit(trainRI, trainRL)
 	
-	print_predict_proba("PIXELS", model, pxl)
+	pxl_c = print_predict_proba("PIXELS", model, pxl, info)
 
 	# model = svm.LinearSVC()
 	model = CalibratedClassifierCV(svm.LinearSVC())
 	model.fit(trainFeat, trainLabels)
 
-	print_predict_proba("HISTOGRAM", model, hst)
+	hst_c = print_predict_proba("HISTOGRAM", model, hst, info)
+
+	return {'pxl':pxl_c, 'hst':hst_c }
