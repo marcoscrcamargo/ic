@@ -7,13 +7,18 @@ def main():
 # Parametros:
 	# img_path - caminho para a imagem
 	# imshow = true/false(default) para mostrar janela com imagem
-	# inf = true/false(default) para mostrar informações
+	# info = true/false(default) para mostrar informações
 
 
 	mlp_ret = mlp.classify('inputs/0/0.jpg', imshow=True)
 	knn_ret = knn.classify('inputs/0/0.jpg')
 	svm_ret = svm.classify('inputs/0/0.jpg')
 
+	#Retorno:
+		# O retorno da função é um dicionário contendo dois valores: 'pxl' e 'hst',
+		# que indica os resultados de cada método.
+		# 'pxl' e 'hst' também é um dicionário, contendo os seguintes valores:
+		# {'label':label da imagem, '0':prob de ser 0 ,'1':prob de ser 1, '2': prob de ser 2 }
 
 	print("KNN\n")
 	print("Label: " + str(knn_ret['pxl']['label']) +
