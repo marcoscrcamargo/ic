@@ -19,3 +19,10 @@ def classify(img_path, classifier='knn'):
 	elif(classifier == 'svm'):
 		return svm.classify(img_path)
 
+def print_proba(ret, classifier='knn', full=False):
+	if(classifier == 'knn'):
+		knn.print_proba(ret, full)
+	elif(classifier == 'mlp'):
+		mlp.print_proba(ret, full)
+	elif(classifier == 'svm'):
+		svm.print_proba(ret, full)

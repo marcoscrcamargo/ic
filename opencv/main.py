@@ -7,16 +7,19 @@ import matplotlib.pyplot as plt
 
 import time
 
+default = 'mlp'
 
 def main():
-	vision.initializate(classifier = 'mlp')
+	vision.initializate(classifier = default)
 
 	# ...
 
 
 	img_path = 'inputs/0/0.jpg'
-	ret = vision.classify(img_path, classifier = 'mlp')
-	vision.mlp.print_proba(ret)
+	
+	ret = vision.classify(img_path, classifier = default)
+	
+	vision.print_proba(ret, classifier = default)
 
 
 	# begin = time.time()
