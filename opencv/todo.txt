@@ -1,2 +1,0 @@
-Sugestões:
-	modularizar os parametros do classificador, criando uma função para definir os parametros.
